@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+	<head>
+		<meta charset="utf-8">
+		<link rel="stylesheet" type="text/css" href="styles.css">
+	</head>
+	<body>
+  <div class="padding">
+		<div id="legendholder" style="position: absolute;">
+		  <h1 id="title" style="position: absolute;"> test </h1>
+		</div> 
+		  
+		<div id="map-wrapper"></div>
+
+		<div class="buttonPanel" id="buttons">
+    			
+		  <button id="click_to_run" onclick="do_update()">View by Population</button>
+		  <button id="click_to_normal" onclick="do_normal()">View Normal</button>
+		  <button id="click_to_recompute" onclick="reCompute()" class="wrapper" style="margin-right: auto; margin-left: auto">Search</button>
+		  <button id="moreFocus" onclick="more()" style="float: right; background: lightgreen">more</button>
+		  <button id="lessFocus" onclick="less()" style="float: right;">less</button>
+		</div>
+
+		<section class="card-container" id="card-container">
+
+		</section>
+</div>
+		<script src="https://d3js.org/d3.v2.min.js"></script>
+		<script src="topojson.js"></script>
+		<script src="cartogram.js"></script>
+		<script src="newsscript.js"></script>
+
+		<script src="scripts.js"></script> 
+
+		<script type="text/javascript">
+
+			var pop_data_new
+			let mapActive = true
+			moreFocus = true
+
+			function sumPopulation(){
+				let sum = 0
+				pop_data_new.forEach(function(data){
+					sum = sum + parseInt(data.population)
+				})
+				return(sum)				
+			}
+
+			function getArticleNumbers(){
+				let requirement = sumPopulation()/100
+				console.log(requirement)
+				let articleNumbers = []
+				pop_data_new.forEach(function(data){
+					articleNumbers.push([parseInt(((parseInt(data.population))/requirement)),data.country]
+				)});
+				console.log(articleNumbers)
+				return(articleNumbers)	
+			}
+
+			//console.log(getArticleNumbers())
+			document.getElementById("card-container").innerHTML = ""
+
+			data = d3.csv("populations.csv", function(data){
+				pop_data_new = data
+				console.log(getArticleNumbers())
+
+			});
+
+function more(){
+	moreFocus = true
+	document.getElementById("moreFocus").style.background='lightgreen'
+	document.getElementById("lessFocus").style.background='white'
+}
+
+function less(){
+	moreFocus = false
+	document.getElementById("lessFocus").style.background='lightcoral'
+	document.getElementById("moreFocus").style.background='white'
+}
+
+			
+
+			var promise1 = new Promise(function(resolve, reject) {
+			  setTimeout(function() {
+			    resolve();
+			  }, 1000);
+			});
+
+			promise1.then(function() {
+			  (Array.from(document.getElementById("states").children)).forEach(function(item) {
+				item.onmouseover = function() {
+					if(mapActive === true & item.style.fill === "" || item.style.fill === "white"){
+					document.getElementById("title").innerHTML = item.id
+					item.style.fill = "grey"
+				};}
+				item.onmouseleave = function() {
+					if(mapActive === true & item.style.fill === "grey"){
+					document.getElementById("title").innerHTML = item.id
+					item.style.fill = "white"
+				};}
+			  });
+			  (Array.from(document.getElementById("states").children)).forEach(function(item) {
+			  	item.onclick = function() {
+			  		
+					//mapActive = false
+			  		let city = pop_data_new.filter(obj => {return (obj.country === item.id)})[0] 
+			  		if (moreFocus === true){
+			  			city.population  = (city.population  * 2).toString()
+			  			if(item.style.fill === "grey"){
+							item.style.fill = "lightgreen"
+						} else if(item.style.fill === "lightgreen"){
+							item.style.fill = "green"
+						} else{
+							item.style.fill = "darkgreen"
+						}
+			  		} else {
+			  			city.population  = (city.population  * 0.5).toString()
+			  			if(item.style.fill === "grey"){
+							item.style.fill = "lightpink"
+						} else if(item.style.fill === "lightpink"){
+							item.style.fill = "lightcoral"
+						} else{
+							item.style.fill = "red"
+						}
+
+			  		}
+					      pop_data_new.forEach(function(d){
+						    pop_data.set(d.country, [d.population], d.id)
+						  });
+			  	}
+				})
+			});
+
+
+
+			//console.log((Array.from(document.getElementById("states").children)))
+//
+			//(Array.from(document.getElementById("states").children)).forEach(function(item) {
+			   //console.log(item.id);
+			//});
+//
+			//console.log("test")
+
+		</script>
+
+	</body>
+</html>
